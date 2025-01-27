@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summary</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        .container {
+            width: 80%;
+            max-width: 600px;
+            padding: 20px;
+            background-color: rgba(51, 51, 51, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        form {
+            margin-top: 20px;
+        }
+        input[type="date"], select, .button {
+            padding: 10px;
+            font-size: 16px;
+            margin-top: 10px;
+            width: 100%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        .button {
+            width: 200px; /* Minimal Width */
+            margin: 10px auto; /* Center Align */
+            display: block; /* Ensure Block Display */
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-align: center;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .button i {
+            margin-right: 5px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .summary-box {
+            padding: 20px;
+            margin-top: 20px;
+            color: white;
+            font-size: 18px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .summary-box.profit {
+            background-color: #4CAF50;
+        }
+        .summary-box.loss {
+            background-color: #f44336;
+        }
+        .selected-vehicles {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .selected-vehicle {
+            display: inline-block;
+            margin-right: 10px;
+            color: #fff;
+        }
+        .selected-vehicle button {
+            background-color: transparent;
+            color: #f44336;
+            border: none;
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Summary for {{ vehicle_name }}</h1>
+        <form method="POST">
+            <div class="form-group">
+                <label for="start_date">Start Date:</label>
+                <input type="date" id="start_date" name="start_date" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="end_date">End Date:</label>
+                <input type="date" id="end_date" name="end_date" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="compare_vehicles">Select Vehicles to Compare (optional):</label>
+                <select id="compare_vehicles" name="compare_vehicles" class="form-control" multiple onchange="updateSelectedVehicles()">
+                    {% for vehicle in vehicles %}
+                        {% if vehicle != vehicle_name %}
+                            <option value="{{ vehicle }}">{{ vehicle }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="button btn-primary"><i class="fas fa-chart-bar"></i> Generate Summary</button>
+        </form>
+        <div class="selected-vehicles" id="selected-vehicles"></div>
+        {% if summary %}
+            <div class="summary-box {{ 'profit' if summary.net >= 0 else 'loss' }}">
+                <h2>Summary for {{ vehicle_name }}</h2>
+                <p><strong>Income:</strong> ${{ summary.income }}</p>
+                <p><strong>Expense:</strong> ${{ summary.expense }}</p>
+                <p><strong>Net Profit/Loss:</strong> ${{ summary.net }}</p>
+            </div>
+        {% endif %}
+        {% if compare_summaries %}
+            <h2>Comparison Summaries</h2>
+            <ul class="vehicle-list">
+                {% for vehicle_summary in compare_summaries %}
+                    <li>
+                        <div class="summary-box {{ 'profit' if vehicle_summary.net >= 0 else 'loss' }}">
+                            <h3>{{ vehicle_summary.vehicle_name }}</h3>
+                            <p><strong>Income:</strong> ${{ vehicle_summary.income }}</p>
+                            <p><strong>Expense:</strong> ${{ vehicle_summary.expense }}</p>
+                            <p><strong>Net Profit/Loss:</strong> ${{ vehicle_summary.net }}</p>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+    <script>
+        function updateSelectedVehicles() {
+            var select = document.getElementById('compare_vehicles');
+            var selectedVehicles = document.getElementById('selected-vehicles');
+            selectedVehicles.innerHTML = '';
+            for (var i = 0; i < select.options.length; i++) {
+                if (select.options[i].selected) {
+                    var vehicle = select.options[i].value;
+                    var vehicleDiv = document.createElement('div');
+                    vehicleDiv.className = 'selected-vehicle';
+                    vehicleDiv.innerHTML = vehicle + '<button type="button" onclick="removeVehicle(\'' + vehicle + '\')">X</button>';
+                    selectedVehicles.appendChild(vehicleDiv);
+                }
+            }
+        }
+
+        function removeVehicle(vehicleName) {
+            var select = document.getElementById('compare_vehicles');
+            for (var i = 0; i < select.options.length; i++) {
+                if (select.options[i].value === vehicleName) {
+                    select.options[i].selected = false;
+                }
+            }
+            updateSelectedVehicles();
+        }
+    </script>
+</body>
+</html>

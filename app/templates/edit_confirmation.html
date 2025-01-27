@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Confirmation</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 80%;
+            max-width: 400px;
+            padding: 20px;
+            background-color: rgba(51, 51, 51, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .alert {
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+            background-color: #f44336;
+            color: white;
+        }
+        .button {
+            width: 200px; /* Minimal Width */
+            margin: 10px auto; /* Center Align */
+            display: block; /* Ensure Block Display */
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-align: center;
+        }
+        .btn-primary {
+            background-color: #007BFF;
+            color: white;
+        }
+        .btn-danger {
+            background-color: #DC3545;
+            color: white;
+        }
+        .btn-success {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .button:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% if same_vehicle %}
+            <div class="alert">
+                {{ message }}
+            </div>
+            <form method="POST" action="{{ url_for('edit_vehicle') }}">
+                <input type="hidden" name="old_vehicle" value="{{ old_vehicle }}">
+                <input type="hidden" name="new_vehicle" value="{{ new_vehicle }}">
+                <button type="submit" class="button btn-primary">Change</button>
+            </form>
+            <form method="GET" action="{{ url_for('vehicle_options') }}">
+                <button type="submit" class="button btn-danger">Dismiss</button>
+            </form>
+        {% elif vehicle_exists %}
+            <div class="alert">
+                {{ message }}
+            </div>
+            <form method="POST" action="{{ url_for('edit_vehicle') }}">
+                <input type="hidden" name="old_vehicle" value="{{ old_vehicle }}">
+                <input type="hidden" name="new_vehicle" value="{{ new_vehicle }}">
+                <button type="submit" class="button btn-primary">Change</button>
+            </form>
+            <form method="GET" action="{{ url_for('vehicle_options') }}">
+                <button type="submit" class="button btn-danger">Dismiss</button>
+            </form>
+        {% else %}
+            <p>{{ message }}</p>
+            <form method="POST" action="{{ url_for('confirm_edit_vehicle') }}">
+                <input type="hidden" name="old_vehicle" value="{{ old_vehicle }}">
+                <input type="hidden" name="new_vehicle" value="{{ new_vehicle }}">
+                <button type="submit" name="confirmation" value="Yes" class="button btn-success">Yes</button>
+                <button type="submit" name="confirmation" value="No" class="button btn-danger">No</button>
+            </form>
+        {% endif %}
+    </div>
+</body>
+</html>

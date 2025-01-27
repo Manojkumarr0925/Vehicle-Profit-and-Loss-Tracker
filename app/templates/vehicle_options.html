@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Options</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .container {
+            width: 80%;
+            max-width: 600px;
+            padding: 20px;
+            background-color: rgba(51, 51, 51, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+            text-align: center;
+        }
+        form {
+            margin-top: 20px;
+        }
+        select, input[type="text"], .button {
+            padding: 10px;
+            font-size: 16px;
+            margin-top: 10px;
+            width: 100%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        .button {
+            width: 200px; /* Minimal Width */
+            margin: 10px auto; /* Center Align */
+            display: block; /* Ensure Block Display */
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-align: center;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .button i {
+            margin-right: 5px;
+        }
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+        .form-group {
+            width: 100%;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #333;
+            color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            text-align: center;
+        }
+        .modal-content .button {
+            width: 200px; /* Minimal Width */
+            margin: 10px auto; /* Center Align */
+            display: block; /* Ensure Block Display */
+            padding: 10px 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Select or Manage Your Vehicles</h1>
+        <!-- Vehicle Options Content -->
+        <form method="POST">
+            <select name="vehicle" class="form-control" required>
+                <option value="" disabled selected>Choose a vehicle</option>
+                {% for vehicle in vehicles %}
+                    <option value="{{ vehicle }}">{{ vehicle }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="button btn-primary"><i class="fas fa-car"></i> Manage Vehicle</button>
+        </form>
+        <form action="{{ url_for('add_vehicle') }}" method="POST">
+            <input type="text" name="vehicle_name" placeholder="New Vehicle Name" class="form-control mt-3" required>
+            <button type="submit" class="button btn-primary"><i class="fas fa-plus"></i> Add Vehicle</button>
+        </form>
+        <div class="form-container">
+            <div class="form-group">
+                <form id="editVehicleForm" method="POST" action="{{ url_for('edit_vehicle') }}">
+                    <select name="old_vehicle" class="form-control" required>
+                        <option value="" disabled selected>Choose a vehicle to edit</option>
+                        {% for vehicle in vehicles %}
+                            <option value="{{ vehicle }}">{{ vehicle }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="text" name="new_vehicle" placeholder="New Vehicle Name" class="form-control mt-3" required>
+                    <button type="submit" class="button btn-primary"><i class="fas fa-edit"></i> Edit Vehicle</button>
+                </form>
+            </div>
+            <div class="form-group">
+                <form action="{{ url_for('delete_vehicle') }}" method="POST">
+                    <select name="vehicle" class="form-control" required>
+                        <option value="" disabled selected>Choose a vehicle to delete</option>
+                        {% for vehicle in vehicles %}
+                            <option value="{{ vehicle }}">{{ vehicle }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="button btn-danger"><i class="fas fa-trash"></i> Delete Vehicle</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- The Modal for Flash Messages -->
+    <div id="flashMessageModal" class="modal">
+        <div class="modal-content">
+            <p id="flashMessageContent"></p>
+            <button onclick="closeFlashMessageModal()" class="button btn-primary">OK</button>
+        </div>
+    </div>
+    <!-- The Modal for Add Vehicle -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <p id="addMessage"></p>
+            <button onclick="closeAddModal()" class="button btn-primary">OK</button>
+        </div>
+    </div>
+    <!-- The Modal for Edit Vehicle -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <p id="editMessage"></p>
+            <form id="editConfirmForm" method="POST" action="{{ url_for('confirm_edit_vehicle') }}">
+                <input type="hidden" name="old_vehicle" id="old_vehicle">
+                <input type="hidden" name="new_vehicle" id="new_vehicle">
+                <button type="submit" name="confirmation" value="Yes" id="confirmButton" class="button btn-success" style="display: none;"><i class="fas fa-check"></i> Yes</button>
+                <button type="button" onclick="closeEditModal()" id="dismissButton" class="button btn-secondary"><i class="fas fa-times"></i> Dismiss</button>
+                <button type="button" id="changeButton" onclick="changeEditForm()" class="button btn-info"><i class="fas fa-edit"></i> Change</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    document.getElementById('flashMessageContent').innerText = "{{ message }}";
+                    document.getElementById('flashMessageModal').style.display = 'block';
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
+            
+            document.getElementById('editVehicleForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const oldVehicle = this.old_vehicle.value;
+                const newVehicle = this.new_vehicle.value;
+                
+                if (oldVehicle === newVehicle) {
+                    document.getElementById('editMessage').innerText = "Same vehicle number cannot be edited.";
+                    document.getElementById('confirmButton').style.display = 'none';
+                } else if (Array.from(this.old_vehicle.options).some(option => option.value === newVehicle && option.value !== "")) {
+                    document.getElementById('editMessage').innerText = `Vehicle ${newVehicle} already exists.`;
+                    document.getElementById('confirmButton').style.display = 'none';
+                } else {
+                    document.getElementById('editMessage').innerText = `Do you want to edit ${oldVehicle} to ${newVehicle}?`;
+                    document.getElementById('confirmButton').style.display = 'inline-block';
+                }
+                
+                document.getElementById('dismissButton').style.display = 'inline-block';
+                document.getElementById('changeButton').style.display = 'inline-block';
+                
+                document.getElementById('old_vehicle').value = oldVehicle;
+                document.getElementById('new_vehicle').value = newVehicle;
+                document.getElementById('editModal').style.display = 'block';
+            });
+        });
+
+        function closeFlashMessageModal() {
+            document.getElementById('flashMessageModal').style.display = 'none';
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').style.display = 'none';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        function changeEditForm() {
+            document.getElementById('editVehicleForm').old_vehicle.value = document.getElementById('old_vehicle').value;
+            document.getElementById('editVehicleForm').new_vehicle.value = '';
+            closeEditModal();
+        }
+    </script>
+</body>
+</html>

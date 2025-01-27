@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Entry</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .container {
+            width: 80%;
+            max-width: 400px;
+            padding: 20px;
+            background-color: rgba(51, 51, 51, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+            text-align: center;
+        }
+        form {
+            margin-top: 20px;
+        }
+        select, .button {
+            padding: 10px;
+            font-size: 16px;
+            margin-top: 10px;
+            width: 100%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        .button {
+            width: 200px; /* Minimal Width */
+            margin: 10px auto; /* Center Align */
+            display: block; /* Ensure Block Display */
+            background-color: #DC3545;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-align: center;
+        }
+        .button:hover {
+            background-color: #c82333;
+        }
+        .button i {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Delete Entry for {{ vehicle_name }}</h1>
+        <form method="POST" class="form-group">
+            <select name="selected_entry" class="form-control" required>
+                {% for index in range(entries|length) %}
+                    <option value="{{ index }}">{{ entries[index].date }} - {{ entries[index].entry_type }} - ${{ entries[index].amount }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="button btn-danger"><i class="fas fa-trash"></i> Delete Entry</button>
+        </form>
+    </div>
+</body>
+</html>

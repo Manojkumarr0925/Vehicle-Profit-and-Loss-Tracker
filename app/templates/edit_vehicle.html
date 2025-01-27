@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Vehicle</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            text-align: center;
+            width: 80%;
+            max-width: 400px;
+            padding: 20px;
+            background-color: rgba(51, 51, 51, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .content {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+        }
+        .background-image {
+            width: 100%;
+            height: auto;
+            opacity: 0.5;
+        }
+        select, input[type="text"], .button {
+            padding: 10px;
+            font-size: 16px;
+            margin-top: 10px;
+            width: 100%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        .button {
+            width: 200px; /* Minimal Width */
+            margin: 10px auto; /* Center Align */
+            display: block; /* Ensure Block Display */
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-align: center;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .button i {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="{{ url_for('static', filename='images/welcome_image.png') }}" class="background-image">
+        <div class="content">
+            <h1>Edit Vehicle</h1>
+            {% if message %}
+            <div class="alert alert-success">{{ message }}</div>
+            <button class="button btn-primary" onclick="window.location.href='{{ url_for('edit_vehicle') }}'">OK</button>
+            {% endif %}
+            <form action="{{ url_for('edit_vehicle') }}" method="POST">
+                <select name="vehicle" class="form-control" required>
+                    <!-- Options populated by backend -->
+                </select>
+                <input type="text" name="new_vehicle_name" placeholder="Enter new vehicle name" class="form-control mt-3" required>
+                <button type="submit" class="button btn-primary"><i class="fas fa-edit"></i> Edit Vehicle</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

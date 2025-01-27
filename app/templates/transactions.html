@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .container {
+            width: 80%;
+            max-width: 600px;
+            padding: 20px;
+            background-color: rgba(51, 51, 51, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+            text-align: center;
+        }
+        .filter-options {
+            margin: 20px 0;
+        }
+        .filter-options button {
+            width: 200px; /* Minimal Width */
+            margin: 10px auto; /* Center Align */
+            display: block; /* Ensure Block Display */
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-align: center;
+        }
+        .btn-secondary {
+            background-color: #6C757D;
+            color: white;
+        }
+        .btn-success {
+            background-color: #28A745;
+            color: white;
+        }
+        .btn-danger {
+            background-color: #DC3545;
+            color: white;
+        }
+        .filter-options button:hover {
+            opacity: 0.8;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #fff;
+        }
+        th {
+            background-color: #333;
+        }
+        .income {
+            color: green;
+        }
+        .expense {
+            color: red;
+        }
+        .button {
+            width: 100px; /* Minimal Width */
+            margin: 5px; /* Adjust margin to center align */
+            display: block; /* Ensure block display */
+            padding: 10px;
+            font-size: 14px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-align: center;
+        }
+        .btn-warning {
+            background-color: #FFC107;
+            color: black;
+        }
+        .btn-danger {
+            background-color: #DC3545;
+            color: white;
+        }
+        .button i {
+            margin-right: 5px;
+        }
+        .button:hover {
+            opacity: 0.8;
+        }
+    </style>
+    <script>
+        function filterTransactions(type) {
+            const rows = document.querySelectorAll('table tr[data-type]');
+            rows.forEach(row => {
+                if (type === 'All' || row.dataset.type === type) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Transactions for {{ vehicle_name }}</h1>
+        <div class="filter-options">
+            <button onclick="filterTransactions('All')" class="button btn-secondary"><i class="fas fa-list"></i> All</button>
+            <button onclick="filterTransactions('Income')" class="button btn-success"><i class="fas fa-dollar-sign"></i> Income</button>
+            <button onclick="filterTransactions('Expense')" class="button btn-danger"><i class="fas fa-money-bill-alt"></i> Expense</button>
+        </div>
+        <table class="table table-dark table-striped">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in entries %}
+                <tr data-type="{{ entry.entry_type }}" class="{{ 'income' if entry.entry_type == 'Income' else 'expense' }}">
+                    <td>{{ entry.date }}</td>
+                    <td>{{ entry.entry_type }}</td>
+                    <td>${{ entry.amount }}</td>
+                    <td>{{ entry.description }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('edit_entry', vehicle_name=vehicle_name) }}" style="display: inline;">
+                            <input type="hidden" name="selected_entry" value="{{ loop.index0 }}">
+                            <button type="submit" class="button btn-warning"><i class="fas fa-edit"></i> Edit</button>
+                        </form>
+                        <form method="POST" action="{{ url_for('delete_entry', vehicle_name=vehicle_name) }}" style="display: inline;">
+                            <input type="hidden" name="selected_entry" value="{{ loop.index0 }}">
+                            <button type="submit" class="button btn-danger"><i class="fas fa-trash"></i> Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
