@@ -126,10 +126,5 @@ git push origin feature-name
 
 ---
 
-## 📝 **License**
-This project is licensed under the MIT License. See the LICENSE file for details.
-
----
-
 ## 🙏 **Acknowledgments**
 Thanks to PythonAnywhere for hosting the application. Created to streamline the financial management of a family vehicle business.
